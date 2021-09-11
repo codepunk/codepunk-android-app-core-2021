@@ -1,0 +1,184 @@
+/*
+ * Copyright (C) 2021 Codepunk, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * A gradle file containing convenience methods for creating keys, preference keys, and values
+ * that are accessible as both resources and BuildConfig constants.
+ */
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+project.ext.makeConstIntValue = this.&makeConstIntValue
+project.ext.makeConstStringValue = this.&makeConstStringValue
+project.ext.makeIntentAction = this.&makeIntentAction
+project.ext.makeIntentCategory = this.&makeIntentCategory
+project.ext.makeIntentExtra = this.&makeIntentExtra
+project.ext.makeKey = this.&makeKey
+project.ext.makePreferenceKey = this.&makePreferenceKey
+
+/**
+ * Writes a value to BuildConfig, doing some basic formatting for consistency.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the value.
+ * @param includeAppId Whether to append the application ID to the beginning of the value.
+ * @param type The data type to write (i.e. "String" or "int").
+ * @param value The value (pre-formatting) to write.
+ */
+private static def buildConfigField(
+        Object variant,
+        String name,
+        boolean includeAppId,
+        String type,
+        String value
+) {
+    def isString = type == "String"
+    def builder = new StringBuilder()
+    if (isString) builder.append("\"")
+    if (includeAppId) builder.append("${variant.metaClass.getProperty(variant, "applicationId")}.")
+    builder.append(value)
+    if (isString) builder.append("\"")
+    variant.metaClass.invokeMethod(
+            variant,
+            "buildConfigField",
+            type,
+            name.toUpperCase(Locale.ENGLISH),
+            builder.toString()
+    )
+}
+
+/**
+ * Writes a value to the app's resources, doing some basic formatting for consistency.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the value.
+ * @param includeAppId Whether to append the application ID to the beginning of the value.
+ * @param type The data type to write (i.e. "string" or "integer").
+ * @param value The value (pre-formatting) to write.
+ */
+private static def resValue(
+        Object variant,
+        String name,
+        boolean includeAppId,
+        String type,
+        String value
+) {
+    def builder = new StringBuilder()
+    if (includeAppId) builder.append("${variant.metaClass.getProperty(variant, "applicationId")}.")
+    builder.append(value)
+    variant.metaClass.invokeMethod(
+            variant,
+            "resValue",
+            type,
+            name.toLowerCase(Locale.ENGLISH),
+            builder.toString()
+    )
+}
+
+/**
+ * Writes an integer value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the value.
+ * @param value The integer value to write.
+ */
+static def makeConstIntValue(Object variant, String name, int value) {
+    buildConfigField(variant, name, false, "int", value.toString())
+    resValue(variant, name, false, "integer", value.toString())
+}
+
+/**
+ * Writes a string value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the value.
+ * @param value The string value to write.
+ */
+static def makeConstStringValue(Object variant, String name, String value) {
+    buildConfigField(variant, name, false, "String", value)
+    resValue(variant, name, false, "string", value)
+}
+
+/**
+ * Writes an Intent entity value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param type The entity type (i.e. "ACTION", "CATEGORY", or "EXTRA").
+ * @param name The name of the entity.
+ */
+private static def makeIntentEntity(Object variant, String type, String name) {
+    def value = "intent.${type.toLowerCase(Locale.ENGLISH)}.${name.toUpperCase(Locale.ENGLISH)}"
+    buildConfigField(variant, "${type}_$name", true, "String", value)
+    resValue(variant, "intent_${type}_$name", true, "string", value)
+}
+
+/**
+ * Writes an Intent action value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the action.
+ */
+static def makeIntentAction(Object variant, String name) {
+    makeIntentEntity(variant, "ACTION", name)
+}
+
+/**
+ * Writes an Intent category value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the category.
+ */
+static def makeIntentCategory(Object variant, String name) {
+    makeIntentEntity(variant, "CATEGORY", name)
+}
+
+/**
+ * Writes an Intent extra value to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the extra value.
+ */
+static def makeIntentExtra(Object variant, String name) {
+    makeIntentEntity(variant, "EXTRA", name)
+}
+
+/**
+ * Writes an key value to both BuildConfig and the app's resources. This value can be used
+ * as a unique value for setting and retrieving values in Bundles.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the key.
+ */
+static def makeKey(Object variant, String name) {
+    buildConfigField(variant, "KEY_$name", true, "String", name)
+}
+
+/**
+ * Writes a preference key name to both BuildConfig and the app's resources.
+ * @param var The BuildVariant. Gradle wraps this in a proxy object so we need to access
+ *            properties and methods via metaClass.
+ * @param name The name of the preference key.
+ */
+static def makePreferenceKey(Object variant, String name) {
+    def value = "PREF_KEY_${name.toUpperCase(Locale.US)}"
+    buildConfigField(variant, "PREF_KEY_$name", true, "String", value)
+    resValue(variant, "pref_key_$name", true, "string", value)
+}

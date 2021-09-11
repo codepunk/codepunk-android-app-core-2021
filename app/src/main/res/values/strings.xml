@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright (C) 2021 Codepunk, LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Codepunk</string>
+
+    <!-- region Settings -->
+
+    <string name="about">About</string>
+    <string name="accounts">Accounts</string>
+    <string name="developer_options">Developer options</string>
+    <string name="disabled">Disabled</string>
+    <string name="enabled">Enabled</string>
+    <string name="log_in">Log in</string>
+    <string name="log_out">Log out</string>
+    <string name="settings">Settings</string>
+
+    <string name="settings_add_or_change_account">Add or change account</string>
+
+    <string name="settings_about_summary">Version %s</string>
+
+    <plurals name="settings_clicks_remaining">
+        <item quantity="one">You are now %d step away from unlocking developer options!</item>
+        <item quantity="other">You are now %d steps away from unlocking developer options!</item>
+    </plurals>
+
+    <string name="settings_already_a_developer">No need, developer options are already unlocked</string>
+    <string name="settings_now_a_developer">You are now a developer!</string>
+
+    <string name="settings_dev_opts_incorrect_password">Incorrect password</string>
+    <string name="settings_dev_opts_now_a_developer">You are now a developer!</string>
+    <string name="settings_dev_opts_password_dialog_title">Developer password</string>
+    <string name="settings_dev_opts_password_dialog_message">Enter the password to enable developer options:</string>
+    <string name="settings_dev_opts_password_hint">Password</string>
+
+    <!-- endregion Settings -->
+
+</resources>

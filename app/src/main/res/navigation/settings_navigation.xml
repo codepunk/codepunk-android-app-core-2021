@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 Codepunk, LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_navigation"
+    app:startDestination="@id/main_settings_fragment"
+    tools:ignore="UnusedNavigation"
+    >
+
+    <fragment
+        android:id="@+id/main_settings_fragment"
+        android:name="com.codepunk.core.ui.settings.MainSettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@android:layout/preference_list_fragment"
+        >
+
+        <action
+            android:id="@+id/action_main_to_dev_opts"
+            app:destination="@id/fragment_dev_opts_settings"
+            />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_dev_opts_settings"
+        android:name="com.codepunk.core.ui.settings.DevOptsSettingsFragment"
+        android:label="@string/developer_options"
+        tools:layout="@android:layout/preference_list_fragment"
+        />
+
+</navigation>

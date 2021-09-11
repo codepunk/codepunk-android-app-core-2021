@@ -1,0 +1,139 @@
+/*
+ * Copyright (C) 2021 Codepunk, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript {
+    apply from: 'helpers.gradle'
+}
+
+plugins {
+    id 'com.android.application'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'org.jetbrains.dokka'
+}
+
+android {
+    compileSdkVersion config.compileSdk
+    buildToolsVersion config.buildTools
+
+    defaultConfig {
+        applicationId "com.codepunk.core"
+        minSdkVersion config.minSdk
+        targetSdkVersion config.targetSdk
+        versionCode 1
+        versionName "1.0"
+
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-DEBUG"
+        }
+
+        applicationVariants.all { variant ->
+            // Intent actions
+            makeIntentAction(variant, "SETTINGS")
+
+            // Intent categories
+            makeIntentCategory(variant, "DEVELOPER")
+            makeIntentCategory(variant, "MAIN")
+
+            // Intent extras
+            makeIntentExtra(variant, "DEV_OPTS_PASSWORD_HASH")
+
+            // Preference keys
+            makePreferenceKey(variant, "ABOUT")
+            makePreferenceKey(variant, "ADD_OR_CHANGE_ACCOUNT")
+            makePreferenceKey(variant, "CATEGORY_ACCOUNTS")
+            makePreferenceKey(variant, "DEV_OPTS_AUTH_HASH")
+            makePreferenceKey(variant, "DEV_OPTS_ENABLED")
+            makePreferenceKey(variant, "DEV_OPTS_LOCKED")
+            makePreferenceKey(variant, "LOG_OUT")
+
+            /*
+             * Pull private values from gradle.properties
+             * (See http://www.rainbowbreeze.it/environmental-variables-api-key-and-secret-buildconfig-and-android-studio/)
+             * (Also see https://medium.com/@ericfu/securely-storing-secrets-in-an-android-application-501f030ae5a3
+             *  for info about using KeyStore)
+             */
+            def devOptsPasswordHash = project.hasProperty("DevOptsPasswordHash") ?
+                    "\"${DevOptsPasswordHash}\"" :
+                    "/**** Define Developer Password Hash ****/ \"\""
+            variant.buildConfigField("String", "DEV_OPTS_PASSWORD_HASH", devOptsPasswordHash)
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "${rootProject.buildDir}/javadoc"
+        includeNonPublic = true
+    }
+
+    buildFeatures {
+        dataBinding = true
+    }
+}
+
+dependencies {
+    implementation group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: versions.kotlin
+    implementation group: "androidx.activity", name: "activity-ktx", version: versions.androidx.activity_ktx
+    implementation group: "androidx.appcompat", name: "appcompat", version: versions.androidx.appcompat
+    implementation group: "androidx.constraintlayout", name: "constraintlayout", version: versions.androidx.constraintlayout
+    implementation group: "androidx.core", name: "core-ktx", version: versions.androidx.core_ktx
+    implementation group: "androidx.fragment", name: "fragment-ktx", version: versions.androidx.fragment_ktx
+    implementation group: "androidx.lifecycle", name: "lifecycle-livedata-ktx", version: versions.androidx.lifecycle
+    implementation group: "androidx.lifecycle", name: "lifecycle-viewmodel-ktx", version: versions.androidx.lifecycle
+    implementation group: "androidx.navigation", name: "navigation-fragment-ktx", version: versions.androidx.navigation
+    implementation group: "androidx.navigation", name: "navigation-ui-ktx", version: versions.androidx.navigation
+    implementation group: "androidx.preference", name: "preference", version: versions.androidx.preference
+    implementation group: "androidx.preference", name: "preference-ktx", version: versions.androidx.preference
+    implementation group: "com.android.support", name: "multidex", version: versions.android.multidex
+    implementation group: "com.google.android.material", name: "material", version: versions.google.material
+    implementation group: "com.google.dagger", name: "hilt-android", version: versions.google.hilt
+    implementation group: "commons-codec", name: "commons-codec", version: versions.commons_codec
+
+    implementation project(":doofenschmirtz.core")
+    implementation project(":doofenschmirtz.delegate")
+    implementation project(":doofenschmirtz.dialog")
+    implementation project(':doofenschmirtz.settings')
+
+    kapt group: "com.google.dagger", name: "hilt-compiler", version: versions.google.hilt
+
+    testImplementation group: "junit", name: "junit", version: versions.junit
+
+    androidTestImplementation group: "androidx.navigation", name: "navigation-testing", version: versions.androidx.navigation
+    androidTestImplementation group: "androidx.test.ext", name: "junit", version: versions.androidx.test.junit
+    androidTestImplementation group: "androidx.test.espresso", name: "espresso-core", version: versions.androidx.test.espresso_core
+}
